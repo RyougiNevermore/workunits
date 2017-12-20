@@ -13,10 +13,10 @@ var loopErrTimeout = fmt.Errorf("get worker failed, timeout")
 var loopErrEmpty = fmt.Errorf("loop is empty")
 
 type Loop interface {
-	Put(worker Worker) (err error)
-	Get() (worker Worker, err error)
-	GetTimeout(timeout time.Duration) (worker Worker, err error)
-	GetDeadline(deadline time.Time) (worker Worker, err error)
+	Put(u Unit) (err error)
+	Get() (u Unit, err error)
+	GetTimeout(timeout time.Duration) (u Unit, err error)
+	GetDeadline(deadline time.Time) (u Unit, err error)
 	Start() (err error)
 	Shutdown(ctx context.Context) (err error)
 }

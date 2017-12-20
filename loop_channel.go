@@ -14,7 +14,7 @@ func NewChanLoop(size int) Loop {
 	}
 	return &chanLoop{
 		size:       size,
-		workerCh:   nil,
+		unitCh:     nil,
 		running:    false,
 		statusLock: new(sync.RWMutex),
 	}
@@ -22,7 +22,7 @@ func NewChanLoop(size int) Loop {
 
 type chanLoop struct {
 	size       int
-	workerCh   chan Worker
+	unitCh     chan Unit
 	running    bool
 	statusLock *sync.RWMutex
 }
@@ -33,8 +33,8 @@ func (l *chanLoop) Start() error {
 	if l.running {
 		return loopErrStarted
 	}
-	if l.workerCh == nil {
-		l.workerCh = make(chan Worker, l.size)
+	if l.unitCh == nil {
+		l.unitCh = make(chan Unit, l.size)
 	}
 	l.running = true
 	return nil
@@ -57,13 +57,13 @@ func (l *chanLoop) Shutdown(ctx context.Context) error {
 			l.running = false
 		case <-stopCh:
 			l.running = false
-			l.workerCh = nil
+			l.unitCh = nil
 		case <-time.After(500 * time.Microsecond):
-			if len(l.workerCh) == 0 {
+			if len(l.unitCh) == 0 {
 				stopCh <- struct{}{}
 				close(stopCh)
 				stopChClosed = true
-				close(l.workerCh)
+				close(l.unitCh)
 			}
 		}
 	}
@@ -73,49 +73,49 @@ func (l *chanLoop) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (l *chanLoop) Put(worker Worker) (err error) {
+func (l *chanLoop) Put(u Unit) (err error) {
 	l.statusLock.RLock()
 	defer l.statusLock.RUnlock()
 	if !l.running {
 		return loopErrStopped
 	}
-	l.workerCh <- worker
+	l.unitCh <- u
 	return nil
 }
 
-func (l *chanLoop) Get() (worker Worker, err error) {
-	if l.workerCh == nil {
+func (l *chanLoop) Get() (u Unit, err error) {
+	if l.unitCh == nil {
 		return nil, loopErrEmpty
 	}
-	worker, ok := <-l.workerCh
+	u, ok := <-l.unitCh
 	if !ok {
 		return nil, loopErrStopped
 	}
-	if worker == nil {
+	if u == nil {
 		return nil, loopErrNilWorker
 	}
-	return worker, nil
+	return u, nil
 }
 
-func (l *chanLoop) GetTimeout(timeout time.Duration) (worker Worker, err error) {
-	if l.workerCh == nil {
+func (l *chanLoop) GetTimeout(timeout time.Duration) (u Unit, err error) {
+	if l.unitCh == nil {
 		return nil, loopErrEmpty
 	}
 	select {
-	case worker, ok := <-l.workerCh:
+	case u, ok := <-l.unitCh:
 		if !ok {
 			return nil, loopErrStopped
 		}
-		if worker == nil {
+		if u == nil {
 			return nil, loopErrNilWorker
 		}
-		return worker, nil
+		return u, nil
 	case <-time.After(timeout):
 		return nil, loopErrTimeout
 	}
 }
 
-func (l *chanLoop) GetDeadline(deadline time.Time) (worker Worker, err error) {
+func (l *chanLoop) GetDeadline(deadline time.Time) (u Unit, err error) {
 	now := time.Now()
 	d := deadline.Sub(now)
 	if d <= time.Duration(0) {
