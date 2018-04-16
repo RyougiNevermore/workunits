@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"runtime"
 )
 
 func TestDefaultWorkerGroup_Benchmark(t *testing.T) {
@@ -33,6 +34,7 @@ type bunit struct{}
 func (u *bunit) Process() {}
 
 func benchmarkDefaultGroup(N int, buffered int64) {
+
 	group := NewDefaultWorkerGroup(buffered)
 	group.Start()
 	for i := 0; i < N; i++ {
@@ -43,6 +45,7 @@ func benchmarkDefaultGroup(N int, buffered int64) {
 }
 
 func BenchmarkDefaultGroup100(b *testing.B) {
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 	b.ReportAllocs()
 	benchmarkDefaultGroup(b.N, 100)
 }
