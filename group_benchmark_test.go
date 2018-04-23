@@ -2,9 +2,9 @@ package workunits
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
-	"runtime"
 )
 
 func TestDefaultWorkerGroup_Benchmark(t *testing.T) {
