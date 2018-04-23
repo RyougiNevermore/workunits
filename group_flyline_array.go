@@ -41,6 +41,7 @@ func NewArrayBufferedWorkerGroup(capacity int64) WorkerGroup {
 	group.sts = new(status)
 	group.mutex = new(sync.Mutex)
 	group.units = flyline.NewArrayBuffer(capacity)
+	group.workerNum = capacity
 	return group
 }
 
