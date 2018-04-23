@@ -1,8 +1,8 @@
 package workunits
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 type aunit struct {
@@ -22,7 +22,7 @@ func TestNewArrayBufferedWorkerGroup(t *testing.T) {
 		t.FailNow()
 		return
 	}
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 10000; i++ {
 		err = group.Send(&aunit{i: i})
 		if err != nil {
 			t.Errorf("send failed, %v", err)
@@ -43,4 +43,3 @@ func TestNewArrayBufferedWorkerGroup(t *testing.T) {
 		return
 	}
 }
-
