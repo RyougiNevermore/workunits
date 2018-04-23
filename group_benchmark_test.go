@@ -2,9 +2,9 @@ package workunits
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
-	"runtime"
 )
 
 func TestDefaultWorkerGroup_Benchmark(t *testing.T) {
@@ -20,12 +20,12 @@ func TestDefaultWorkerGroup_Benchmark(t *testing.T) {
 	start = time.Now()
 	benchmarkDefaultGroup(N, 10)
 	dur = time.Since(start)
-	fmt.Printf("default(100):  %d ops in %s (%d/sec)\n", N, dur, int(float64(N)/dur.Seconds()))
+	fmt.Printf("default(10):  %d ops in %s (%d/sec)\n", N, dur, int(float64(N)/dur.Seconds()))
 
 	start = time.Now()
 	benchmarkDefaultGroup(N, 1)
 	dur = time.Since(start)
-	fmt.Printf("default(100):  %d ops in %s (%d/sec)\n", N, dur, int(float64(N)/dur.Seconds()))
+	fmt.Printf("default(1):  %d ops in %s (%d/sec)\n", N, dur, int(float64(N)/dur.Seconds()))
 
 }
 
@@ -44,18 +44,18 @@ func benchmarkDefaultGroup(N int, buffered int64) {
 	group.Sync()
 }
 
-func BenchmarkDefaultGroup100(b *testing.B) {
+func BenchmarkDefaultGroup128(b *testing.B) {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 100)
+	benchmarkDefaultGroup(b.N, 128)
 }
 
-func BenchmarkDefaultGroup10(b *testing.B) {
+func BenchmarkDefaultGroup16(b *testing.B) {
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 10)
+	benchmarkDefaultGroup(b.N, 16)
 }
 
-func BenchmarkDefaultGroup1(b *testing.B) {
+func BenchmarkDefaultGroup2(b *testing.B) {
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 1)
+	benchmarkDefaultGroup(b.N, 2)
 }
