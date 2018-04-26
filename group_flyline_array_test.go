@@ -15,7 +15,7 @@ func (u *aunit) Process() {
 
 func TestNewArrayBufferedWorkerGroup(t *testing.T) {
 	var err error
-	group := NewArrayBufferedWorkerGroup(8)
+	group := NewArrayBufferedWorkerGroup(8, 8)
 	err = group.Start()
 	if err != nil {
 		t.Errorf("start failed, %v", err)

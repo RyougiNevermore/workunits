@@ -29,7 +29,7 @@ It's easily to use, default way.
 
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2) 
 
-	group := NewDefaultWorkerGroup(4)
+	group := NewDefaultWorkerGroup(4, 1024 * 32)
 	group.Start()
 	group.Send(&Unit{...})
 	group.Close()
@@ -43,20 +43,21 @@ It's easily to use, default way.
 - [] Sync() with context.
 - [] Work Group Flow
 
-# Performance
+Benchmarks
+----------------------------
+Any failures cause a panic. Unless otherwise noted, all tests were run using `GOMAXPROCS=runtime.NumCPU() * 2`.
 
-## Default Ways
+* CPU: `Intel Core i5 @ 2.70 Ghz`
+* Operation System: `OS X 10.13.4`
+* Go Runtime: `Go 1.10.0`
+* Go Architecture: `amd64`
 
-```
-$ go test -run none -bench .
-``` 
+Scenario | Per Operation Time
+-------- | ------------------
+Default: 1 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 166 ns/op
+Default: 4 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 194 ns/op
+Default: 1 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 188 ns/op
 
-MacBook Pro 13" 2.7 GHz Intel Core i5 (darwin/amd64)
-
-```
-10000000	       	363 ns/op	       0 B/op	       0 allocs/op
-5000000	       		363 ns/op	       0 B/op	       0 allocs/op
-```
 
 
 ## Contact

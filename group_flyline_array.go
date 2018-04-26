@@ -32,7 +32,10 @@ func (w *arrayBufferedWorker) Work() {
 }
 
 // new flyline ArrayBuffered worker group, base on standard channel.
-func NewArrayBufferedWorkerGroup(capacity int64) WorkerGroup {
+func NewArrayBufferedWorkerGroup(workerNum int64, capacity int64) WorkerGroup {
+	if workerNum <= int64(0) {
+		panic(fmt.Errorf("new group failed, cap must be bigger than 0"))
+	}
 	if capacity > 0 && (capacity&(capacity-1)) != 0 {
 		panic("The array capacity must be a power of two, e.g. 2, 4, 8, 16, 32, 64, etc.")
 		return nil
@@ -41,7 +44,7 @@ func NewArrayBufferedWorkerGroup(capacity int64) WorkerGroup {
 	group.sts = new(status)
 	group.mutex = new(sync.Mutex)
 	group.units = flyline.NewArrayBuffer(capacity)
-	group.workerNum = capacity
+	group.workerNum = workerNum
 	return group
 }
 

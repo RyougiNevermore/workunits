@@ -15,7 +15,7 @@ func (u *sunit) Process() {
 
 func TestDefaultWorkerGroup_Sample(t *testing.T) {
 	var err error
-	group := NewDefaultWorkerGroup(10)
+	group := NewDefaultWorkerGroup(10, 1024 * 32)
 	err = group.Start()
 	if err != nil {
 		t.Errorf("start failed, %v", err)

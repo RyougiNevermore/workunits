@@ -25,20 +25,22 @@ func (w *defaultWorker) Work() {
 }
 
 // new default worker group, base on standard channel.
-func NewDefaultWorkerGroup(cap int64) WorkerGroup {
-	if cap <= int64(0) {
+func NewDefaultWorkerGroup(workerNum int64, capacity int64) WorkerGroup {
+	if capacity <= int64(0) && workerNum <= int64(0) {
 		panic(fmt.Errorf("new group failed, cap must be bigger than 0"))
 	}
 	group := new(defaultWorkerGroup)
+	group.workerNum = workerNum
 	group.wg = new(sync.WaitGroup)
 	group.sts = new(status)
 	group.mutex = new(sync.Mutex)
-	group.units = make(chan Unit, cap)
+	group.units = make(chan Unit, capacity)
 	return group
 }
 
 // standard channel worker group
 type defaultWorkerGroup struct {
+	workerNum int64
 	units chan Unit
 	wg    *sync.WaitGroup
 	sts   *status
@@ -52,8 +54,7 @@ func (g *defaultWorkerGroup) Start() (err error) {
 		err = fmt.Errorf("worker group start failed, it is running")
 		return
 	}
-	workerNum := cap(g.units)
-	for i := 0; i < workerNum; i++ {
+	for i := int64(0); i < g.workerNum; i++ {
 		worker := new(defaultWorker)
 		worker.units = g.units
 		worker.wg = g.wg

@@ -34,8 +34,7 @@ type abunit struct{}
 func (u *abunit) Process() {}
 
 func benchmarkArrayBufferedWorkerGroup(N int, buffered int64) {
-
-	group := NewArrayBufferedWorkerGroup(buffered)
+	group := NewArrayBufferedWorkerGroup(buffered, 1024 * 32 * 8)
 	group.Start()
 	for i := 0; i < N; i++ {
 		group.Send(&abunit{})
@@ -49,7 +48,7 @@ func BenchmarkArrayBufferedWorkerGroup128(b *testing.B) {
 	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
 	b.ResetTimer()
-	benchmarkArrayBufferedWorkerGroup(b.N, 8)
+	benchmarkArrayBufferedWorkerGroup(b.N, int64(runtime.NumCPU() * 2))
 	b.StopTimer()
 }
 
@@ -58,22 +57,23 @@ func BenchmarkArrayBufferedWorkerGroup16(b *testing.B) {
 	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
 	b.ResetTimer()
-	benchmarkArrayBufferedWorkerGroup(b.N, 16)
+	benchmarkArrayBufferedWorkerGroup(b.N, 4)
+	b.StopTimer()
 }
 
 func BenchmarkArrayBufferedWorkerGroup2(b *testing.B) {
-	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+	runtime.GOMAXPROCS(1)
 	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
 	b.ResetTimer()
-	benchmarkArrayBufferedWorkerGroup(b.N, 2)
+	benchmarkArrayBufferedWorkerGroup(b.N, 1)
+	b.StopTimer()
 }
 
 func BenchmarkArrayBufferedWorkerGroup(b *testing.B) {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 	defer runtime.GOMAXPROCS(1)
-
-	group := NewArrayBufferedWorkerGroup(1024 * 16)
+	group := NewArrayBufferedWorkerGroup(2, 1024 * 32 * 8)
 	group.Start()
 	b.ReportAllocs()
 	b.ResetTimer()
