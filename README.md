@@ -23,13 +23,31 @@ $ go get github.com/pharosnet/workunits
 
 ### Usage
 
-It's easily to use, default way.
+It's easily to use.
+
+#### Default
 
 ```go
 
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2) 
 
 	group := NewDefaultWorkerGroup(4, 1024 * 32)
+	group.Start()
+	group.Send(&Unit{...})
+	group.Close()
+	group.Sync()
+
+```
+
+#### Ring
+
+It's reactor mode. Only support amd64, and no-contended writer.
+
+```go
+
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2) 
+
+	group := NewRingWorkerGroup(4, 1024 * 32, 1024 * 32)
 	group.Start()
 	group.Send(&Unit{...})
 	group.Close()
@@ -56,7 +74,10 @@ Scenario | Per Operation Time
 -------- | ------------------
 Default: 1 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 166 ns/op
 Default: 4 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 194 ns/op
-Default: 1 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 188 ns/op
+Default: (cpu num * 2) worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 188 ns/op
+Ring: 1 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 146 ns/op
+Ring: 4 worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 122 ns/op
+Ring: (cpu num * 2) worker, 1024 * 32 cap, GOMAXPROCS=runtime.NumCPU() * 2| 133 ns/op
 
 
 
