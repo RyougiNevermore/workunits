@@ -35,7 +35,7 @@ func (u *bunit) Process() {}
 
 func benchmarkDefaultGroup(N int, buffered int64) {
 
-	group := NewDefaultWorkerGroup(buffered)
+	group := NewDefaultWorkerGroup(buffered, 1024 * 32)
 	group.Start()
 	for i := 0; i < N; i++ {
 		group.Send(&bunit{})
@@ -46,16 +46,21 @@ func benchmarkDefaultGroup(N int, buffered int64) {
 
 func BenchmarkDefaultGroup128(b *testing.B) {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 128)
+	benchmarkDefaultGroup(b.N, int64(runtime.NumCPU()))
 }
 
 func BenchmarkDefaultGroup16(b *testing.B) {
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 16)
+	benchmarkDefaultGroup(b.N, 4)
 }
 
 func BenchmarkDefaultGroup2(b *testing.B) {
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+	defer runtime.GOMAXPROCS(1)
 	b.ReportAllocs()
-	benchmarkDefaultGroup(b.N, 2)
+	benchmarkDefaultGroup(b.N, 1)
 }
